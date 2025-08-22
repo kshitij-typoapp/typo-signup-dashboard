@@ -74,13 +74,33 @@ daily_signups = list(organizations.aggregate([
     {"$sort": {"_id": 1}}
 ]))
 df_daily = pd.DataFrame(daily_signups)
+
 if not df_daily.empty:
     df_daily.rename(columns={"_id": "Date", "count": "Signups"}, inplace=True)
-    fig_line = px.line(df_daily, x="Date", y="Signups",
-                       title="Daily Signups (last 6 months)", markers=True)
+    total_6mo_signups = int(df_daily["Signups"].sum())
+
+    fig_line = px.line(
+        df_daily, x="Date", y="Signups",
+        title="Daily Signups (last 6 months)", markers=True
+    )
+
+    # add a total badge inside the plot area (top-left)
+    fig_line.add_annotation(
+        xref="paper", yref="paper",
+        x=0.01, y=0.98,
+        text=f"<b>Total (6 mo): {total_6mo_signups}</b>",
+        showarrow=False,
+        align="left",
+        bordercolor="rgba(0,0,0,0.2)",
+        borderwidth=1,
+        bgcolor="rgba(255,255,255,0.85)",
+        font=dict(size=12)
+    )
+
     st.plotly_chart(fig_line, use_container_width=True)
 else:
     st.info("No signups in the last 6 months.")
+
 
 # ==================================================
 # 3. Company Data Table (Optimized)
@@ -141,6 +161,16 @@ else:
         days_remaining = str(
             days_remaining) if days_remaining > 0 else "Trial Ended"
 
+        # Activities count
+        activities_count = userevents.count_documents(
+            {"user": inst_user}) if inst_user else 0
+
+        # Last activity date
+        last_activity = userevents.find_one({"user": inst_user}, sort=[
+            ("createdAt", -1)]) if inst_user else None
+        last_activity_date = last_activity["createdAt"].strftime(
+            "%d-%m-%Y") if last_activity else "NA"
+
         companies.append({
             "Company": name,
             "Admin Name": admin_name,
@@ -149,6 +179,8 @@ else:
             "Dev Count": dev_counts.get(str(org_id), 0),
             "Sign Up Date": created_at.strftime("%d-%m-%Y") if created_at else "NA",
             "FT Days Remaining": days_remaining,
+            "Activities": activities_count,
+            "Last Activity Date": last_activity_date,
             "Goals Live": goals_count_map.get(str(org_id), 0),
             "Alerts Generated": alerts_count_map.get(str(org_id), 0),
             # "Source": utm_tag,
