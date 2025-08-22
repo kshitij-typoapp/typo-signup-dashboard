@@ -5,12 +5,22 @@ from pymongo import MongoClient
 from datetime import datetime, timedelta
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 from streamlit_autorefresh import st_autorefresh
+import pytz
 
 # ==================================================
 # Streamlit Page Setup
 # ==================================================
 st.set_page_config(page_title="Internal Reporting Dashboard", layout="wide")
 st.title("📊 Typo SignUps Dashboard")
+
+# add last updated timestamp (IST)
+ist = pytz.timezone("Asia/Kolkata")
+last_updated = datetime.now(ist).strftime("%d-%m-%Y %H:%M:%S")
+
+st.markdown(
+    f"<p style='color: grey; font-size: 14px; font-style: italic;'>Last updated at: {last_updated} IST</p>",
+    unsafe_allow_html=True
+)
 
 
 # ==================================================
