@@ -24,9 +24,9 @@ st.markdown(
 
 
 # ==================================================
-# Auto-refresh every 10 minutes (600,000 ms)
+# Auto-refresh every 60 minutes (3600,000 ms)
 # ==================================================
-st_autorefresh(interval=600000, key="datarefresh")
+st_autorefresh(interval=3600000, key="datarefresh")
 
 
 # ==================================================
